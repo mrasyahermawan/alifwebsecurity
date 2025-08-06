@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  webapp:
+    image: alifwebsecurity:latest
+    ports:
+      - "5001:5000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD_FILE=/run/secrets/redis_password
+    secrets:
+      - redis_password
+    depends_on:
+      - redis
+
+  redis:
+    image: "redis:7-alpine"
+    command: >
+      sh -c 'exec redis-server --requirepass "$$(cat /run/secrets/redis_password)"'
+    secrets:
+      - redis_password
+    volumes:
+      - redis-swarm-data:/data
+
+secrets:
+  redis_password:
+    external: true
+
+volumes:
+  redis-swarm-data:
