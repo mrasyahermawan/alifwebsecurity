@@ -4,34 +4,32 @@ import redis
 
 app = Flask(__name__)
 
-# --- Konfigurasi Koneksi Redis ---
-# Ambil konfigurasi dari environment variables
+
 redis_host = os.environ.get('REDIS_HOST', 'redis')
 redis_port = int(os.environ.get('REDIS_PORT', 6379))
 
-# Cek apakah password disediakan melalui file (Docker Secret) atau environment variable (Docker Compose)
 redis_password = None
 redis_password_file_path = os.environ.get('REDIS_PASSWORD_FILE')
 
 if redis_password_file_path:
-    # Mode Docker Swarm: Baca password dari file secret
+
     with open(redis_password_file_path, 'r') as f:
         redis_password = f.read().strip()
 else:
-    # Mode Docker Compose: Baca password dari environment variable
+ 
     redis_password = os.environ.get('REDIS_PASSWORD')
 
-# Buat koneksi ke Redis
+
 try:
     r = redis.Redis(host=redis_host, port=redis_port, password=redis_password, db=0, decode_responses=True)
-    # Cek koneksi
+    
     r.ping()
     redis_status = "Tersambung ke Redis"
 except Exception as e:
     r = None
     redis_status = f"Gagal tersambung ke Redis: {e}"
 
-# --- HTML Template ---
+
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
